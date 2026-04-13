@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tennis Pro Tool</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1117;color:#e8eaf2;font-family:'Segoe UI',sans-serif;font-size:14px}
+header{background:#161b27;border-bottom:2px solid #00c97a;padding:14px 16px;display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;font-weight:700}header span{color:#00c97a}
+header small{margin-left:auto;color:#666;font-size:11px}
+.tabs{display:flex;background:#161b27;border-bottom:1px solid #1e2535;overflow-x:auto}
+.tab{padding:10px 14px;border:none;background:none;color:#666;font-size:12px;letter-spacing:1px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:#00c97a;border-bottom-color:#00c97a}
+.pg{display:none;padding:14px;max-width:700px;margin:0 auto}.pg.on{display:block}
+.card{background:#161b27;border:1px solid #1e2535;border-radius:8px;padding:14px;margin-bottom:12px}
+.ct{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#00c97a;margin-bottom:12px}
+label{font-size:11px;color:#666;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+input,select{width:100%;background:#0f1117;border:1px solid #1e2535;color:#e8eaf2;border-radius:6px;padding:9px 11px;font-size:14px;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:#00c97a}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:480px){.g2,.g3{grid-template-columns:1fr}}
+.btn{width:100%;padding:12px;border:none;border-radius:6px;background:#00c97a;color:#0f1117;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:10px}
+.btn-o{background:transparent!important;border:1px solid #00c97a!important;color:#00c97a!important}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2535;font-size:13px}
+.row:last-child{border:none}
+.rl{color:#666}.rv{font-weight:600}
+.green{color:#00c97a}.red{color:#ff4e6a}.gold{color:#f5a623}
+.vs{display:grid;grid-template-columns:1fr 36px 1fr;gap:8px;align-items:center;margin:12px 0}
+.vsb{background:#0f1117;border:1px solid #1e2535;border-radius:6px;padding:12px;text-align:center}
+.vsn{font-size:11px;color:#666;margin-bottom:4px}
+.vsp{font-size:28px;font-weight:700}
+.bar{height:10px;background:#1e2535;border-radius:5px;overflow:hidden;display:flex;margin:8px 0}
+.ba{background:#00c97a;height:100%;transition:width .5s}
+.bb{background:#1a7aff;height:100%;transition:width .5s}
+.verd{text-align:center;padding:12px;border-radius:6px;font-weight:700;font-size:13px;letter-spacing:1px;margin-top:10px;border:2px solid}
+.vgo{background:rgba(0,201,122,.1);border-color:#00c97a;color:#00c97a}
+.vno{background:rgba(255,78,106,.1);border-color:#ff4e6a;color:#ff4e6a}
+.vok{background:rgba(245,166,35,.1);border-color:#f5a623;color:#f5a623}
+.tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600}
+.tg{background:rgba(0,201,122,.15);color:#00c97a}
+.tr{background:rgba(255,78,106,.15);color:#ff4e6a}
+.ty{background:rgba(245,166,35,.15);color:#f5a623}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #1e2535;border-top-color:#00c97a;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lw{position:relative}
+.lb{position:absolute;right:0;top:0;height:100%;padding:0 12px;background:#00c97a;color:#0f1117;border:none;font-size:11px;font-weight:700;border-radius:0 6px 6px 0;cursor:pointer}
+.lb:disabled{background:#555;cursor:wait}
+input.hb{padding-right:95px}
+.pc{background:#0f1117;border:1px solid #1e2535;border-left:3px solid #00c97a;border-radius:6px;padding:12px;margin-top:8px;display:none}
+.pc.show{display:block}
+.pcn{font-size:15px;font-weight:700;margin-bottom:8px}
+.pcg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px}
+.ps{background:#161b27;padding:6px 8px;border-radius:4px}
+.psl{font-size:10px;color:#666;text-transform:uppercase}
+.psv{font-size:13px;font-weight:600}
+.ob{margin-top:10px;padding:10px;background:rgba(245,166,35,.05);border:1px dashed rgba(245,166,35,.3);border-radius:6px}
+.ob label{color:#f5a623}
+.or{display:flex;gap:8px;margin-top:6px}
+.or input,.or select{flex:1}
+.or button{padding:8px 12px;border:none;background:#f5a623;color:#0f1117;border-radius:6px;font-weight:700;cursor:pointer;white-space:nowrap;font-size:11px}
+.adv{background:rgba(26,74,122,.08);border:1px solid rgba(26,74,122,.2);border-radius:6px;padding:12px;margin-top:10px}
+.advt{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#5a9ad4;margin-bottom:10px}
+.vbox{background:#0a0d12;border-radius:8px;padding:14px;margin-top:12px;border:1px solid #f5a623}
+.vtitle{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#f5a623;margin-bottom:10px}
+.hid{display:none}
+.istrip{background:#0f1117;border:1px solid #1e2535;border-radius:6px;padding:10px 12px;font-size:12px;color:#888;line-height:1.7;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 8px;color:#666;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #1e2535}
+td{padding:7px 8px;border-bottom:1px solid #1e2535}
+tr:last-child td{border:none}
+</style>
+</head>
+<body>
+<header>
+  <span style="font-size:22px">🎾</span>
+  <h1>Tennis <span>Pro</span> Tool</h1>
+  <small>ATP · WTA · ITF · Challenger</small>
+</header>
+<div class="tabs">
+  <button class="tab on" onclick="tab('elo',this)">ELO+VALUE</button>
+  <button class="tab" onclick="tab('serve',this)">SERVE</button>
+  <button class="tab" onclick="tab('kelly',this)">KELLY</button>
+  <button class="tab" onclick="tab('clv',this)">CLV LOG</button>
+  <button class="tab" onclick="tab('guide',this)">GUIDE</button>
+</div>
+
+<!-- ELO + VALUE -->
+<div id="elo" class="pg on">
+  <div class="card">
+    <div class="ct">Player Lookup + Elo</div>
+    <div style="margin-bottom:14px">
+      <label>Player A</label>
+      <div class="lw"><input class="hb" type="text" id="pA" placeholder="e.g. Iga Swiatek" onkeydown="if(event.key==='Enter')look('A')"><button class="lb" id="btnA" onclick="look('A')">🤖 Lookup</button></div>
+      <div id="ldA" class="hid" style="font-size:12px;color:#666;padding:6px 0"><span class="spin"></span>Searching web...</div>
+      <div class="pc" id="cA"><div class="pcn" id="cAn"></div><div class="pcg" id="cAg"></div><div id="cAe"></div>
+        <div class="ob"><label>Ranking ভুল? Fix করুন</label><div class="or"><input type="number" id="orA" placeholder="169"><select id="otA"><option value="wta">WTA</option><option value="atp">ATP</option><option value="chal">Challenger</option><option value="itf">ITF</option></select><button onclick="applyR('A')">Update Elo</button></div></div>
+      </div>
+      <div style="margin-top:8px"><label>Surface Elo</label><input type="number" id="eloA" placeholder="Auto-filled or manual"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label>Player B</label>
+      <div class="lw"><input class="hb" type="text" id="pB" placeholder="e.g. Aryna Sabalenka" onkeydown="if(event.key==='Enter')look('B')"><button class="lb" id="btnB" onclick="look('B')">🤖 Lookup</button></div>
+      <div id="ldB" class="hid" style="font-size:12px;color:#666;padding:6px 0"><span class="spin"></span>Searching web...</div>
+      <div class="pc" id="cB"><div class="pcn" id="cBn"></div><div class="pcg" id="cBg"></div><div id="cBe"></div>
+        <div class="ob"><label>Ranking ভুল? Fix করুন</label><div class="or"><input type="number" id="orB" placeholder="50"><select id="otB"><option value="wta">WTA</option><option value="atp">ATP</option><option value="chal">Challenger</option><option value="itf">ITF</option></select><button onclick="applyR('B')">Update Elo</button></div></div>
+      </div>
+      <div style="margin-top:8px"><label>Surface Elo</label><input type="number" id="eloB" placeholder="Auto-filled or manual"></div>
+    </div>
+    <div style="margin-bottom:10px"><label>Surface</label>
+      <select id="surf"><option value="clay">🟤 Clay</option><option value="grass">🟢 Grass</option><option value="hard" selected>🔵 Hard</option><option value="indoor">🟣 Indoor</option></select></div>
+    <div class="adv">
+      <div class="advt">⚙️ Advanced Factors (auto-filled by Lookup)</div>
+      <div class="g2" style="margin-bottom:8px">
+        <div><label>Player A Form (L10)</label><select id="fA"><option value="0">Unknown</option><option value="3">9–10W 🔥</option><option value="2">7–8W Good</option><option value="0">5–6W Avg</option><option value="-2">3–4W Poor</option><option value="-3">0–2W ❄️</option></select></div>
+        <div><label>Player B Form (L10)</label><select id="fB"><option value="0">Unknown</option><option value="3">9–10W 🔥</option><option value="2">7–8W Good</option><option value="0">5–6W Avg</option><option value="-2">3–4W Poor</option><option value="-3">0–2W ❄️</option></select></div>
+      </div>
+      <div class="g2" style="margin-bottom:8px">
+        <div><label>H2H (A vs B)</label><select id="h2h"><option value="0">Unknown</option><option value="3">A leads 75%+</option><option value="1.5">A leads 60–74%</option><option value="0">Even</option><option value="-1.5">B leads 60–74%</option><option value="-3">B leads 75%+</option></select></div>
+        <div><label>Round</label><select id="rnd"><option value="0">R1/R2</option><option value="0.5">QF</option><option value="1">SF</option><option value="1.5">Final</option></select></div>
+      </div>
+      <div class="g2">
+        <div><label>Player A Surface</label><select id="ssA"><option value="0">Neutral</option><option value="2">Specialist ✅</option><option value="-2">Weak ⚠️</option></select></div>
+        <div><label>Player B Surface</label><select id="ssB"><option value="0">Neutral</option><option value="2">Specialist ✅</option><option value="-2">Weak ⚠️</option></select></div>
+      </div>
+    </div>
+    <button class="btn" onclick="calcE()">🎯 Calculate Win Probability</button>
+  </div>
+  <div id="eloR" class="hid">
+    <div class="card">
+      <div class="vs">
+        <div class="vsb"><div class="vsn" id="rNA">A</div><div class="vsp green" id="rPA">—</div><div style="font-size:11px;color:#666">win%</div></div>
+        <div style="text-align:center;color:#444;font-size:14px">VS</div>
+        <div class="vsb"><div class="vsn" id="rNB">B</div><div class="vsp red" id="rPB">—</div><div style="font-size:11px;color:#666">win%</div></div>
+      </div>
+      <div class="bar"><div class="ba" id="barA"></div><div class="bb" id="barB"></div></div>
+      <div class="g3" style="margin-top:10px">
+        <div style="text-align:center;background:#0f1117;padding:10px;border-radius:6px"><div style="font-size:10px;color:#666">A Fair Odds</div><div style="font-size:18px;font-weight:700;color:#00c97a" id="rFA">—</div></div>
+        <div style="text-align:center;background:#0f1117;padding:10px;border-radius:6px"><div style="font-size:10px;color:#666">Elo Diff</div><div style="font-size:18px;font-weight:700;color:#f5a623" id="rDf">—</div></div>
+        <div style="text-align:center;background:#0f1117;padding:10px;border-radius:6px"><div style="font-size:10px;color:#666">B Fair Odds</div><div style="font-size:18px;font-weight:700;color:#1a7aff" id="rFB">—</div></div>
+      </div>
+      <div id="rAdj" style="margin-top:8px;font-size:12px;color:#666;padding:8px;background:#0f1117;border-radius:6px"></div>
+    </div>
+    <div class="vbox">
+      <div class="vtitle">⚡ STEP 2 — VALUE CHECK (এটা ছাড়া bet করবেন না)</div>
+      <div class="istrip" style="margin-bottom:10px">Fair odds বের হয়েছে। 1xBet odds দিন। <strong style="color:#fff">Bookie odds > Fair odds হলেই bet।</strong></div>
+      <div class="g2" style="margin-bottom:8px">
+        <div><label>Bet করবেন কার উপর?</label><select id="vSide"><option value="A" id="vOA">Player A</option><option value="B" id="vOB">Player B</option></select></div>
+        <div><label>1xBet Odds</label><input type="number" id="vOdds" placeholder="1.85" step="0.01"></div>
+        <div><label>Stake (৳)</label><input type="number" id="vStake" placeholder="500"></div>
+        <div><label>Pinnacle Odds (optional)</label><input type="number" id="vPin" placeholder="1.78" step="0.01"></div>
+      </div>
+      <button class="btn btn-o" style="margin-top:0" onclick="calcV()">CHECK VALUE →</button>
+      <div id="vR" class="hid" style="margin-top:12px">
+        <div class="g3" style="margin-bottom:10px">
+          <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Your Prob</div><div style="font-size:16px;font-weight:700" id="vProb">—</div></div>
+          <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Fair Odds</div><div style="font-size:16px;font-weight:700;color:#f5a623" id="vFair">—</div></div>
+          <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">EV</div><div style="font-size:16px;font-weight:700" id="vEV">—</div></div>
+        </div>
+        <div id="vVerdict" class="verd"></div>
+        <div id="vDetail" class="istrip" style="margin-top:8px;white-space:pre-line"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVE -->
+<div id="serve" class="pg">
+  <div class="card">
+    <div class="ct">Serve Comparison</div>
+    <div class="g2">
+      <div style="border-top:3px solid #00c97a;padding-top:8px">
+        <div style="font-size:11px;color:#00c97a;margin-bottom:8px">PLAYER A</div>
+        <div style="margin-bottom:6px"><label>Name</label><input id="snA" placeholder="Player A"></div>
+        <div style="margin-bottom:6px"><label>1st Serve In %</label><input type="number" id="s1iA" placeholder="65"></div>
+        <div style="margin-bottom:6px"><label>1st Serve Win %</label><input type="number" id="s1wA" placeholder="75"></div>
+        <div style="margin-bottom:6px"><label>2nd Serve Win %</label><input type="number" id="s2wA" placeholder="52"></div>
+        <div style="margin-bottom:6px"><label>Ace %</label><input type="number" id="acA" placeholder="8"></div>
+        <div style="margin-bottom:6px"><label>DF %</label><input type="number" id="dfA" placeholder="4"></div>
+        <div><label>Return Pts Won %</label><input type="number" id="rtA" placeholder="38"></div>
+      </div>
+      <div style="border-top:3px solid #1a7aff;padding-top:8px">
+        <div style="font-size:11px;color:#1a7aff;margin-bottom:8px">PLAYER B</div>
+        <div style="margin-bottom:6px"><label>Name</label><input id="snB" placeholder="Player B"></div>
+        <div style="margin-bottom:6px"><label>1st Serve In %</label><input type="number" id="s1iB" placeholder="65"></div>
+        <div style="margin-bottom:6px"><label>1st Serve Win %</label><input type="number" id="s1wB" placeholder="75"></div>
+        <div style="margin-bottom:6px"><label>2nd Serve Win %</label><input type="number" id="s2wB" placeholder="52"></div>
+        <div style="margin-bottom:6px"><label>Ace %</label><input type="number" id="acB" placeholder="8"></div>
+        <div style="margin-bottom:6px"><label>DF %</label><input type="number" id="dfB" placeholder="4"></div>
+        <div><label>Return Pts Won %</label><input type="number" id="rtB" placeholder="38"></div>
+      </div>
+    </div>
+    <button class="btn" onclick="calcS()">⚔️ Compare</button>
+  </div>
+  <div id="sR" class="hid"><div class="card">
+    <table><thead><tr><th id="sthA">A</th><th style="text-align:center">Stat</th><th style="text-align:right" id="sthB">B</th></tr></thead><tbody id="sTb"></tbody></table>
+    <div id="sIns" style="margin-top:10px"></div>
+  </div></div>
+</div>
+
+<!-- KELLY -->
+<div id="kelly" class="pg">
+  <div class="card">
+    <div class="ct">Kelly Criterion</div>
+    <div class="g2">
+      <div><label>Bankroll (৳)</label><input type="number" id="kBk" placeholder="10000"></div>
+      <div><label>Decimal Odds</label><input type="number" id="kOd" placeholder="2.20" step="0.01"></div>
+      <div><label>Win Probability %</label><input type="number" id="kPr" placeholder="55"></div>
+      <div><label>Tour Level</label><select id="kTr"><option value="0.5">ATP/WTA</option><option value="0.35">500 level</option><option value="0.25">Challenger/125K</option><option value="0.2">ITF</option></select></div>
+    </div>
+    <button class="btn" onclick="calcK()">Calculate Stake</button>
+    <div id="kR" class="hid" style="margin-top:12px">
+      <div class="g3" style="margin-bottom:10px">
+        <div style="background:#0f1117;padding:12px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Kelly %</div><div style="font-size:22px;font-weight:700;color:#00c97a" id="kPct">—</div></div>
+        <div style="background:#0f1117;padding:12px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Stake</div><div style="font-size:22px;font-weight:700;color:#f5a623" id="kSt">—</div></div>
+        <div style="background:#0f1117;padding:12px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Potential Win</div><div style="font-size:22px;font-weight:700;color:#00c97a" id="kWn">—</div></div>
+      </div>
+      <div id="kAdv" class="istrip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLV -->
+<div id="clv" class="pg">
+  <div class="card">
+    <div class="ct">CLV Tracker</div>
+    <div class="g2" style="margin-bottom:8px">
+      <div><label>Match</label><input id="cM" placeholder="Swiatek vs Sabalenka"></div>
+      <div><label>Bet Odds</label><input type="number" id="cB" placeholder="2.10" step="0.01"></div>
+      <div><label>Closing Odds (Pinnacle)</label><input type="number" id="cC" placeholder="1.95" step="0.01"></div>
+      <div><label>Stake</label><input type="number" id="cS" placeholder="500"></div>
+    </div>
+    <div style="margin-bottom:8px"><label>Result</label><select id="cRs"><option value="">Pending ⏳</option><option value="win">Won ✅</option><option value="loss">Lost ❌</option></select></div>
+    <div style="display:flex;gap:8px"><button class="btn" style="margin:0" onclick="addC()">+ Add</button><button class="btn btn-o" style="margin:0" onclick="clearC()">Clear</button></div>
+  </div>
+  <div class="card">
+    <div class="ct">Summary</div>
+    <div class="g3" style="margin-bottom:12px">
+      <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Total</div><div style="font-size:22px;font-weight:700" id="cTot">0</div></div>
+      <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">Avg CLV</div><div style="font-size:22px;font-weight:700" id="cAvg">—</div></div>
+      <div style="background:#0f1117;padding:10px;border-radius:6px;text-align:center"><div style="font-size:10px;color:#666">ROI</div><div style="font-size:22px;font-weight:700" id="cROI">—</div></div>
+    </div>
+    <div id="cList"></div>
+  </div>
+</div>
+
+<!-- GUIDE -->
+<div id="guide" class="pg">
+  <div class="card">
+    <div class="ct">Correct Workflow</div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 1</span><span style="color:#aaa">AI Lookup → Elo, Form, H2H auto-fill</span></div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 2</span><span style="color:#aaa">Win Probability calculate করুন</span></div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 3</span><span style="color:#aaa">Value Check — 1xBet odds দিন</span></div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 4</span><span style="color:#aaa">✅ VALUE আছে হলেই bet করুন</span></div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 5</span><span style="color:#aaa">Kelly দিয়ে stake fix করুন</span></div>
+    <div class="row"><span style="color:#00c97a;font-weight:700">Step 6</span><span style="color:#aaa">CLV Log-এ track করুন</span></div>
+  </div>
+  <div class="card">
+    <div class="ct">⚠️ WTA Clay Warning</div>
+    <div class="istrip">WTA clay-এ 60–65% favourite মাত্র ~57% সময় জেতে। EV minimum +5% না হলে bet করবেন না।</div>
+  </div>
+  <div class="card">
+    <div class="ct">Stats Sites</div>
+    <div class="row"><span class="rl">tennisabstract.com</span><span><span class="tag tg">Elo + Surface</span></span></div>
+    <div class="row"><span class="rl">tennisratio.com</span><span><span class="tag tg">Serve/Return</span></span></div>
+    <div class="row"><span class="rl">pinnacle.com</span><span><span class="tag ty">Reference Odds</span></span></div>
+    <div class="row"><span class="rl">tennisexplorer.com</span><span><span class="tag tg">H2H + ITF</span></span></div>
+  </div>
+</div>
+
+<script>
+let _p=null;
+let cd=JSON.parse(localStorage.getItem('clv')||'[]');
+
+function tab(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');btn.classList.add('on');
+  if(id==='clv')renderC();
+}
+
+function calcE(){
+  const a=parseFloat(document.getElementById('eloA').value);
+  const b=parseFloat(document.getElementById('eloB').value);
+  const nA=document.getElementById('pA').value||'Player A';
+  const nB=document.getElementById('pB').value||'Player B';
+  if(!a||!b){alert('Elo দিন');return;}
+  const fA=parseFloat(document.getElementById('fA').value)||0;
+  const fB=parseFloat(document.getElementById('fB').value)||0;
+  const h2=parseFloat(document.getElementById('h2h').value)||0;
+  const rn=parseFloat(document.getElementById('rnd').value)||0;
+  const sA=parseFloat(document.getElementById('ssA').value)||0;
+  const sB=parseFloat(document.getElementById('ssB').value)||0;
+  const adjA=a+fA*10+h2*8+sA*10,adjB=b+fB*10-h2*8+sB*10;
+  let pA=1/(1+Math.pow(10,(adjB-adjA)/400));
+  if(rn>0){const c=rn*0.015;pA=pA*(1-c)+0.5*c;}
+  const pB=1-pA;
+  _p={pA,pB,nA,nB};
+  document.getElementById('rNA').textContent=nA;document.getElementById('rNB').textContent=nB;
+  document.getElementById('rPA').textContent=(pA*100).toFixed(1)+'%';document.getElementById('rPB').textContent=(pB*100).toFixed(1)+'%';
+  document.getElementById('barA').style.width=(pA*100)+'%';document.getElementById('barB').style.width=(pB*100)+'%';
+  document.getElementById('rFA').textContent=(1/pA).toFixed(2);document.getElementById('rFB').textContent=(1/pB).toFixed(2);
+  document.getElementById('rDf').textContent=Math.abs(adjA-adjB).toFixed(0);
+  const fc=[fA,fB,h2,sA,sB].filter(v=>v!==0).length;
+  document.getElementById('rAdj').textContent=`Adjusted: ${adjA.toFixed(0)} vs ${adjB.toFixed(0)} | ${fc} factors | Confidence: ${Math.min(40+fc*10,95)}%`;
+  document.getElementById('vOA').textContent=nA+' (fair: '+(1/pA).toFixed(2)+')';
+  document.getElementById('vOB').textContent=nB+' (fair: '+(1/pB).toFixed(2)+')';
+  document.getElementById('vR').classList.add('hid');
+  document.getElementById('eloR').classList.remove('hid');
+}
+
+function calcV(){
+  if(!_p){alert('আগে Win Probability বের করুন');return;}
+  const s=document.getElementById('vSide').value;
+  const odds=parseFloat(document.getElementById('vOdds').value);
+  const stake=parseFloat(document.getElementById('vStake').value)||0;
+  const pin=parseFloat(document.getElementById('vPin').value)||0;
+  if(!odds){alert('1xBet odds দিন');return;}
+  const prob=s==='A'?_p.pA:_p.pB;
+  const fair=1/prob,ev=(prob*odds)-1;
+  const clv=pin?((odds-pin)/pin*100).toFixed(1):null;
+  document.getElementById('vProb').textContent=(prob*100).toFixed(1)+'%';
+  document.getElementById('vFair').textContent=fair.toFixed(2);
+  const evEl=document.getElementById('vEV');
+  evEl.textContent=(ev>=0?'+':'')+(ev*100).toFixed(1)+'%';evEl.style.color=ev>0?'#00c97a':'#ff4e6a';
+  let msg,cls,det;
+  if(odds<fair*0.97){msg='❌ NO VALUE — BET করবেন না';cls='vno';det=`Fair odds ${fair.toFixed(2)}, bookie দিচ্ছে ${odds}। Skip করুন।`;}
+  else if(ev>0.05){msg='💎 STRONG VALUE — BET করুন!';cls='vgo';det=`Fair ${fair.toFixed(2)}, bookie ${odds} → +${(ev*100).toFixed(1)}% edge।`+(stake?` Expected profit: ৳${(stake*ev).toFixed(0)}`:'');}
+  else if(ev>0){msg='⚡ SMALL VALUE — OK';cls='vok';det=`Marginal value (+${(ev*100).toFixed(1)}%)।`;}
+  else{msg='⛔ NEGATIVE EV — SKIP';cls='vno';det=`EV ${(ev*100).toFixed(1)}%। Long-term lose হবে।`;}
+  if(clv)det+=`\nPinnacle CLV: ${clv>0?'+':''}${clv}%`;
+  det+='\n\n⚠️ WTA clay-এ EV minimum +5% না হলে bet করবেন না।';
+  const vd=document.getElementById('vVerdict');vd.textContent=msg;vd.className='verd '+cls;
+  document.getElementById('vDetail').textContent=det;document.getElementById('vR').classList.remove('hid');
+}
+
+async function look(side){
+  const name=document.getElementById('p'+side).value.trim();
+  if(!name){alert('Player name লিখুন');return;}
+  const other=document.getElementById('p'+(side==='A'?'B':'A')).value.trim();
+  const surf=document.getElementById('surf').value;
+  const btn=document.getElementById('btn'+side);
+  btn.disabled=true;btn.textContent='⏳';
+  document.getElementById('ld'+side).classList.remove('hid');
+  const prompt=`Tennis analyst with web search. Find LATEST 2025-2026 data for "${name}". Search: "${name} tennis ranking 2026"${other?` and "${name} vs ${other} h2h"`:''}. Return ONLY JSON: {"full_name":"","tour":"WTA","ranking":100,"nationality":"","age":25,"clay_win_pct":55,"grass_win_pct":50,"hard_win_pct":60,"indoor_win_pct":58,"elo_overall":1950,"elo_clay":1930,"elo_grass":1910,"elo_hard":1955,"elo_indoor":1940,"titles":0,"grand_slams":0,"recent_form":"W-W-L","form_last10_wins":7,"days_since_last_match":2,"surface_specialist":false,"surface_weakness":false,"h2h_advantage":"none","h2h_text":"","known_for":""} Rules: surface fields for ${surf}, h2h_advantage=A/B/even/none, never null.`;
+  try{
+    // Use /api/lookup endpoint (works on Vercel with API key)
+    // Auto-detect: use /api/lookup on Vercel, direct API on Claude.ai preview
+    const isVercel = window.location.hostname !== 'claude.ai' && !window.location.hostname.includes('claude.ai');
+    let res;
+    if(isVercel){
+      res=await fetch('/api/lookup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    } else {
+      res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
+    }
+    const data=await res.json();
+    const raw=data.content.map(c=>c.type==='text'?c.text:'').join('');
+    const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
+    if(s<0||e<0)throw new Error('no json');
+    const p=JSON.parse(raw.substring(s,e+1));
+    const em={clay:p.elo_clay,grass:p.elo_grass,hard:p.elo_hard,indoor:p.elo_indoor};
+    const se=parseInt(em[surf])||parseInt(p.elo_overall)||1500;
+    document.getElementById('elo'+side).value=se;
+    const w10=parseInt(p.form_last10_wins)||5;
+    const fs=document.getElementById('f'+side);
+    fs.value=w10>=9?'3':w10>=7?'2':w10>=5?'0':w10>=3?'-2':'-3';fl(fs);
+    const ss=document.getElementById('ss'+side);
+    ss.value=p.surface_specialist===true?'2':p.surface_weakness===true?'-2':'0';fl(ss);
+    if(other&&p.h2h_advantage&&p.h2h_advantage!=='none'){
+      const hs=document.getElementById('h2h');
+      const ad=p.h2h_advantage;
+      hs.value=side==='A'?(ad==='A'?'3':ad==='even'?'0':'-3'):(ad==='B'?'3':ad==='even'?'0':'-3');fl(hs);
+    }
+    const fe=w10>=7?'🔥':w10>=5?'✅':'❄️';
+    const days=parseInt(p.days_since_last_match)||2;
+    document.getElementById('c'+side+'n').textContent=p.full_name||name;
+    document.getElementById('c'+side+'g').innerHTML=`
+      <div class="ps"><div class="psl">Tour</div><div class="psv">${p.tour||'—'}</div></div>
+      <div class="ps"><div class="psl">Rank</div><div class="psv" style="color:#ff4e6a">#${p.ranking||'—'}</div></div>
+      <div class="ps"><div class="psl">Country</div><div class="psv">${p.nationality||'—'}</div></div>
+      <div class="ps"><div class="psl">Age</div><div class="psv">${p.age||'—'}</div></div>
+      <div class="ps"><div class="psl">Titles</div><div class="psv">${p.titles||0}</div></div>
+      <div class="ps"><div class="psl">Elo(${surf})</div><div class="psv green">${se}</div></div>`;
+    document.getElementById('c'+side+'e').innerHTML=`
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
+        <span class="tag tr">🟤${p.clay_win_pct||'?'}%</span>
+        <span class="tag tg">🟢${p.grass_win_pct||'?'}%</span>
+        <span class="tag" style="background:rgba(26,74,122,.2);color:#5a9ad4">🔵${p.hard_win_pct||'?'}%</span>
+      </div>
+      <div style="font-size:12px;margin-bottom:3px">Form L10: <strong>${fe} ${w10}/10</strong> · Rest: ~${days}d</div>
+      <div style="font-size:12px;margin-bottom:3px">Recent: <strong>${(p.recent_form||'').replace(/W/g,'<span style="color:#00c97a">W</span>').replace(/L/g,'<span style="color:#ff4e6a">L</span>')}</strong></div>
+      ${other?`<div style="font-size:12px">H2H: <strong>${p.h2h_text||'no data'}</strong></div>`:''}
+      <div style="margin-top:6px;font-size:11px;color:#00c97a;background:rgba(0,201,122,.07);padding:5px 8px;border-radius:4px">✅ Factors auto-filled!</div>`;
+    document.getElementById('c'+side).classList.add('show');
+  }catch(e){alert('Lookup failed. Check API key in Vercel settings.');console.error(e);}
+  finally{btn.disabled=false;btn.textContent='🤖 Lookup';document.getElementById('ld'+side).classList.add('hid');}
+}
+
+function fl(el){el.style.borderColor='#00c97a';setTimeout(()=>el.style.borderColor='',2500);}
+
+function applyR(side){
+  const r=parseInt(document.getElementById('or'+side).value);
+  const t=document.getElementById('ot'+side).value;
+  if(!r){alert('Ranking দিন');return;}
+  let elo;
+  if(t==='atp'||t==='wta'){if(r<=5)elo=2300;else if(r<=10)elo=2250;else if(r<=20)elo=2200;else if(r<=50)elo=2150;else if(r<=100)elo=2080;else if(r<=150)elo=2020;else if(r<=200)elo=1970;else if(r<=300)elo=1920;else if(r<=500)elo=1860;else elo=1800;}
+  else if(t==='chal'){elo=r<=10?1980:r<=50?1920:1800;}
+  else{elo=r<=100?1700:r<=300?1600:1500;}
+  const surf=document.getElementById('surf').value;
+  const adj={clay:-10,grass:-20,hard:0,indoor:-5};
+  document.getElementById('elo'+side).value=elo+(adj[surf]||0);
+  const btn=event.target;btn.textContent='✅';btn.style.background='#00c97a';
+  setTimeout(()=>{btn.textContent='Update Elo';btn.style.background='#f5a623';},2000);
+}
+
+function calcS(){
+  const g=id=>parseFloat(document.getElementById(id).value);
+  const nA=document.getElementById('snA').value||'A',nB=document.getElementById('snB').value||'B';
+  const A={s1:g('s1iA')/100,w1:g('s1wA')/100,w2:g('s2wA')/100,ac:g('acA')/100||0,df:g('dfA')/100||0,rt:g('rtA')/100||0};
+  const B={s1:g('s1iB')/100,w1:g('s1wB')/100,w2:g('s2wB')/100,ac:g('acB')/100||0,df:g('dfB')/100||0,rt:g('rtB')/100||0};
+  if(!A.s1||!A.w1||!A.w2||!B.s1||!B.w1||!B.w2){alert('Core serve stats দিন');return;}
+  const h=p=>p.s1*p.w1+(1-p.s1)*(1-p.df)*p.w2;
+  const hA=h(A),hB=h(B),tb=hA*hB*100;
+  const w=(a,b,hi=true)=>hi?(a>b?'#00c97a':b>a?'#5a9ad4':''):(a<b?'#00c97a':b<a?'#5a9ad4':'');
+  const rows=[['1st In %',(A.s1*100).toFixed(1)+'%',(B.s1*100).toFixed(1)+'%',w(A.s1,B.s1)],['1st Win %',(A.w1*100).toFixed(1)+'%',(B.w1*100).toFixed(1)+'%',w(A.w1,B.w1)],['2nd Win %',(A.w2*100).toFixed(1)+'%',(B.w2*100).toFixed(1)+'%',w(A.w2,B.w2)],['Hold %',(hA*100).toFixed(1)+'%',(hB*100).toFixed(1)+'%',w(hA,hB)],['Break %',((1-hA)*100).toFixed(1)+'%',((1-hB)*100).toFixed(1)+'%',w(1-hA,1-hB,false)]];
+  document.getElementById('sthA').textContent=nA;document.getElementById('sthB').textContent=nB;
+  document.getElementById('sTb').innerHTML=rows.map(([s,a,b,wA])=>`<tr><td style="color:${wA==='#00c97a'?wA:''};font-weight:${wA==='#00c97a'?700:400}">${a}</td><td style="text-align:center;color:#666;font-size:11px">${s}</td><td style="text-align:right;color:${wA==='#5a9ad4'?wA:''};font-weight:${wA==='#5a9ad4'?700:400}">${b}</td></tr>`).join('');
+  const ins=[];
+  if(hA>0.80&&hB>0.80)ins.push('🎯 Both strong servers — Under Games & Tiebreak consider করুন');
+  if(tb>20)ins.push(`🏆 Tiebreak chance ${tb.toFixed(0)}% high!`);
+  if(Math.abs(hA-hB)>0.10)ins.push(`💪 ${hA>hB?nA:nB} serve-এ dominant`);
+  document.getElementById('sIns').innerHTML=ins.map(i=>`<div class="istrip" style="margin-bottom:6px">${i}</div>`).join('');
+  document.getElementById('sR').classList.remove('hid');
+}
+
+function calcK(){
+  const bk=parseFloat(document.getElementById('kBk').value),od=parseFloat(document.getElementById('kOd').value);
+  const pr=parseFloat(document.getElementById('kPr').value)/100,fr=parseFloat(document.getElementById('kTr').value);
+  if(!bk||!od||!pr){alert('সব field দিন');return;}
+  const b=od-1,q=1-pr,k=((b*pr-q)/b)*fr,st=Math.max(0,k*bk);
+  document.getElementById('kPct').textContent=(k*100).toFixed(2)+'%';
+  document.getElementById('kSt').textContent='৳'+st.toFixed(0);
+  document.getElementById('kWn').textContent='৳'+(st*b).toFixed(0);
+  document.getElementById('kAdv').textContent=k<=0?'🚫 Negative EV':k<0.02?`✅ Small (${(k*100).toFixed(1)}%)`:`💎 Stake ৳${st.toFixed(0)} | Win ৳${(st*b).toFixed(0)}`;
+  document.getElementById('kR').classList.remove('hid');
+}
+
+function addC(){
+  const m=document.getElementById('cM').value,b=parseFloat(document.getElementById('cB').value);
+  const c=parseFloat(document.getElementById('cC').value),s=parseFloat(document.getElementById('cS').value)||0;
+  const r=document.getElementById('cRs').value;
+  if(!m||!b||!c){alert('Match, bet odds, closing odds দিন');return;}
+  cd.push({m,b,c,s,r,clv:((b-c)/c*100).toFixed(2),d:new Date().toLocaleDateString()});
+  localStorage.setItem('clv',JSON.stringify(cd));renderC();
+  ['cM','cB','cC','cS'].forEach(id=>document.getElementById(id).value='');document.getElementById('cRs').value='';
+}
+function clearC(){if(confirm('Clear all?')){cd=[];localStorage.removeItem('clv');renderC();}}
+function renderC(){
+  document.getElementById('cTot').textContent=cd.length;
+  if(!cd.length){document.getElementById('cList').innerHTML='<div class="istrip">No entries yet</div>';document.getElementById('cAvg').textContent='—';document.getElementById('cROI').textContent='—';return;}
+  const avg=cd.reduce((s,d)=>s+parseFloat(d.clv),0)/cd.length;
+  const ae=document.getElementById('cAvg');ae.textContent=(avg>=0?'+':'')+avg.toFixed(2)+'%';ae.style.color=avg>=0?'#00c97a':'#ff4e6a';
+  const sl=cd.filter(d=>d.r&&d.s);
+  if(sl.length){const pf=sl.reduce((s,d)=>s+(d.r==='win'?d.s*(d.b-1):-d.s),0),tot=sl.reduce((s,d)=>s+d.s,0);const roi=tot?(pf/tot*100).toFixed(2)+'%':'—';const re=document.getElementById('cROI');re.textContent=roi;re.style.color=parseFloat(roi)>=0?'#00c97a':'#ff4e6a';}
+  document.getElementById('cList').innerHTML='<table><thead><tr><th>Match</th><th>Bet</th><th>Close</th><th>CLV</th><th></th></tr></thead><tbody>'+cd.slice(-10).reverse().map(d=>{const cv=parseFloat(d.clv);return`<tr><td>${d.m}<br><span style="font-size:10px;color:#666">${d.d}</span></td><td>${d.b}</td><td>${d.c}</td><td style="color:${cv>=0?'#00c97a':'#ff4e6a'}">${cv>=0?'+':''}${d.clv}%</td><td>${d.r==='win'?'✅':d.r==='loss'?'❌':'⏳'}</td></tr>`}).join('')+'</tbody></table>';
+}
+renderC();
+</script>
+</body>
+</html>
