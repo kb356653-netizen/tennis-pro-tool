@@ -344,7 +344,29 @@ async function look(side){
   const btn=document.getElementById('btn'+side);
   btn.disabled=true;btn.textContent='⏳';
   document.getElementById('ld'+side).classList.remove('hid');
-  const prompt=`Tennis analyst with web search. Find LATEST 2025-2026 data for "${name}". Search: "${name} tennis ranking 2026"${other?` and "${name} vs ${other} h2h"`:''}. Return ONLY JSON: {"full_name":"","tour":"WTA","ranking":100,"nationality":"","age":25,"clay_win_pct":55,"grass_win_pct":50,"hard_win_pct":60,"indoor_win_pct":58,"elo_overall":1950,"elo_clay":1930,"elo_grass":1910,"elo_hard":1955,"elo_indoor":1940,"titles":0,"grand_slams":0,"recent_form":"W-W-L","form_last10_wins":7,"days_since_last_match":2,"surface_specialist":false,"surface_weakness":false,"h2h_advantage":"none","h2h_text":"","known_for":""} Rules: surface fields for ${surf}, h2h_advantage=A/B/even/none, never null.`;
+  const prompt=`You are a tennis data analyst. Find the most accurate Elo ratings and stats for "${name}" using this PRIORITY ORDER:
+
+STEP 1 - Search tennisabstract.com first:
+Search: "site:tennisabstract.com ${name}" OR "${name} tennisabstract elo rating"
+Try to find their Clay Elo, Grass Elo, Hard Elo from tennisabstract.com player page.
+
+STEP 2 - If not found on tennisabstract, search these alternatives:
+- "${name} wta-elo.com elo rating" (for WTA players)
+- "${name} ultimatetennisstatistics.com elo" (for ATP players)
+- "${name} tennis elo rating 2026"
+
+STEP 3 - Also search for latest ranking and recent results:
+- "${name} tennis ranking april 2026"
+- "${name} tennis results 2026 recent matches"
+${other ? `- "${name} vs ${other} head to head h2h tennis"` : ''}
+
+Use the REAL Elo numbers you find. If you cannot find real Elo from any source, set elo_source to "estimated" and use ranking-based estimation.
+
+Return ONLY this JSON, no markdown, no extra text:
+{"full_name":"","tour":"WTA","ranking":100,"nationality":"","age":25,"clay_win_pct":55,"grass_win_pct":50,"hard_win_pct":60,"indoor_win_pct":58,"elo_overall":1950,"elo_clay":1930,"elo_grass":1910,"elo_hard":1955,"elo_indoor":1940,"titles":0,"grand_slams":0,"recent_form":"W-W-L","form_last10_wins":7,"days_since_last_match":2,"surface_specialist":false,"surface_weakness":false,"h2h_advantage":"none","h2h_text":"","known_for":"","elo_source":"tennisabstract"}
+
+elo_source must be: "tennisabstract", "wta-elo", "ultimatetennisstatistics", or "estimated"
+Never use null. h2h_advantage = A/B/even/none.`;
   try{
     // Use /api/lookup endpoint (works on Vercel with API key)
     // Auto-detect: use /api/lookup on Vercel, direct API on Claude.ai preview
@@ -361,22 +383,34 @@ async function look(side){
     if(s<0||e<0)throw new Error('no json');
     const p=JSON.parse(raw.substring(s,e+1));
 
-    // CRITICAL FIX: Use ranking-based Elo, NOT AI estimate (AI Elo is unreliable)
+    // SMART ELO LOGIC: Use real Elo if found, fallback to ranking conversion
     const rank=parseInt(p.ranking)||300;
     const tour=(p.tour||'wta').toLowerCase();
-    let baseElo;
-    if(tour==='atp'||tour==='wta'){
-      if(rank<=5)baseElo=2300;else if(rank<=10)baseElo=2250;else if(rank<=20)baseElo=2200;
-      else if(rank<=50)baseElo=2150;else if(rank<=100)baseElo=2080;else if(rank<=150)baseElo=2020;
-      else if(rank<=200)baseElo=1970;else if(rank<=300)baseElo=1920;else if(rank<=500)baseElo=1860;
-      else baseElo=1800;
-    } else if(tour.includes('chal')||tour.includes('125')){
-      baseElo=rank<=10?1980:rank<=50?1920:rank<=100?1860:1800;
-    } else {
-      baseElo=rank<=100?1700:rank<=300?1600:1500;
-    }
+    const eloSource=p.elo_source||'estimated';
+    const surfEloMap={clay:p.elo_clay,grass:p.elo_grass,hard:p.elo_hard,indoor:p.elo_indoor};
     const surfAdj={clay:-10,grass:-20,hard:0,indoor:-5};
-    const se=baseElo+(surfAdj[surf]||0);
+
+    let se, baseElo, eloLabel;
+
+    if(eloSource!=='estimated' && surfEloMap[surf] && parseInt(surfEloMap[surf])>1200){
+      // REAL ELO FOUND from tennisabstract/wta-elo/etc
+      se=parseInt(surfEloMap[surf]);
+      eloLabel='✅ Real Elo from '+eloSource;
+    } else {
+      // FALLBACK: ranking-based conversion
+      if(tour==='atp'||tour==='wta'){
+        if(rank<=5)baseElo=2300;else if(rank<=10)baseElo=2250;else if(rank<=20)baseElo=2200;
+        else if(rank<=50)baseElo=2150;else if(rank<=100)baseElo=2080;else if(rank<=150)baseElo=2020;
+        else if(rank<=200)baseElo=1970;else if(rank<=300)baseElo=1920;else if(rank<=500)baseElo=1860;
+        else baseElo=1800;
+      } else if(tour.includes('chal')||tour.includes('125')){
+        baseElo=rank<=10?1980:rank<=50?1920:rank<=100?1860:1800;
+      } else {
+        baseElo=rank<=100?1700:rank<=300?1600:1500;
+      }
+      se=baseElo+(surfAdj[surf]||0);
+      eloLabel='⚡ Elo from ranking #'+rank+' (tennisabstract not found)';
+    }
     document.getElementById('elo'+side).value=se;
     const w10=parseInt(p.form_last10_wins)||5;
     const fs=document.getElementById('f'+side);
@@ -397,8 +431,8 @@ async function look(side){
       <div class="ps"><div class="psl">Country</div><div class="psv">${p.nationality||'—'}</div></div>
       <div class="ps"><div class="psl">Age</div><div class="psv">${p.age||'—'}</div></div>
       <div class="ps"><div class="psl">Titles</div><div class="psv">${p.titles||0}</div></div>
-      <div class="ps"><div class="psl">Elo(${surf})</div><div class="psv green">${se}</div></div>
-      <div class="ps" style="grid-column:1/-1"><div class="psl" style="color:#f5a623">⚡ Elo from ranking #${rank} (accurate)</div></div>`;;
+      <div class="ps"><div class="psl">Elo(${surf})</div><div class="psv green">${se}</div></div>`;
+    document.getElementById('c'+side+'g').innerHTML += `<div class="ps" style="grid-column:1/-1"><div class="psl" style="color:${eloSource!=='estimated'?'#00c97a':'#f5a623'}">${eloLabel}</div></div>`;;
     document.getElementById('c'+side+'e').innerHTML=`
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
         <span class="tag tr">🟤${p.clay_win_pct||'?'}%</span>
