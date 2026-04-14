@@ -399,10 +399,11 @@ Never use null. h2h_advantage = A/B/even/none.`;
     } else {
       // FALLBACK: ranking-based conversion
       if(tour==='atp'||tour==='wta'){
-        if(rank<=5)baseElo=2300;else if(rank<=10)baseElo=2250;else if(rank<=20)baseElo=2200;
-        else if(rank<=50)baseElo=2150;else if(rank<=100)baseElo=2080;else if(rank<=150)baseElo=2020;
-        else if(rank<=200)baseElo=1970;else if(rank<=300)baseElo=1920;else if(rank<=500)baseElo=1860;
-        else baseElo=1800;
+        if(rank<=1)baseElo=2150;else if(rank<=3)baseElo=2100;else if(rank<=5)baseElo=2050;
+        else if(rank<=10)baseElo=2000;else if(rank<=20)baseElo=1950;else if(rank<=30)baseElo=1900;
+        else if(rank<=50)baseElo=1860;else if(rank<=70)baseElo=1820;else if(rank<=100)baseElo=1780;
+        else if(rank<=150)baseElo=1740;else if(rank<=200)baseElo=1700;else if(rank<=300)baseElo=1660;
+        else if(rank<=500)baseElo=1600;else baseElo=1540;
       } else if(tour.includes('chal')||tour.includes('125')){
         baseElo=rank<=10?1980:rank<=50?1920:rank<=100?1860:1800;
       } else {
@@ -455,9 +456,14 @@ function applyR(side){
   const t=document.getElementById('ot'+side).value;
   if(!r){alert('Ranking দিন');return;}
   let elo;
-  if(t==='atp'||t==='wta'){if(r<=5)elo=2300;else if(r<=10)elo=2250;else if(r<=20)elo=2200;else if(r<=50)elo=2150;else if(r<=100)elo=2080;else if(r<=150)elo=2020;else if(r<=200)elo=1970;else if(r<=300)elo=1920;else if(r<=500)elo=1860;else elo=1800;}
-  else if(t==='chal'){elo=r<=10?1980:r<=50?1920:1800;}
-  else{elo=r<=100?1700:r<=300?1600:1500;}
+  if(t==='atp'||t==='wta'){
+    if(r<=1)elo=2150;else if(r<=3)elo=2100;else if(r<=5)elo=2050;
+    else if(r<=10)elo=2000;else if(r<=20)elo=1950;else if(r<=30)elo=1900;
+    else if(r<=50)elo=1860;else if(r<=70)elo=1820;else if(r<=100)elo=1780;
+    else if(r<=150)elo=1740;else if(r<=200)elo=1700;else if(r<=300)elo=1660;
+    else if(r<=500)elo=1600;else elo=1540;
+  } else if(t==='chal'){elo=r<=10?1800:r<=50?1740:r<=100?1680:1620;}
+  else{elo=r<=100?1600:r<=300?1520:1440;}
   const surf=document.getElementById('surf').value;
   const adj={clay:-10,grass:-20,hard:0,indoor:-5};
   document.getElementById('elo'+side).value=elo+(adj[surf]||0);
